@@ -193,8 +193,8 @@ function () {
         args = (0, _objectWithoutProperties2["default"])(_ref, ["roomId", "peerId", "displayName", "device", "handler", "useSimulcast", "useSharingSimulcast", "forceTcp", "produce", "consume", "forceH264", "forceVP9", "svc", "datachannel", "externalVideo", "media_server_wss"]);
     (0, _classCallCheck2["default"])(this, RoomClient);
     logger.debug('constructor() [roomId:"%s", peerId:"%s", displayName:"%s", device:%s]', roomId, peerId, displayName, device.flag);
-    VIDEO_CONSTRAINS = args.video_constrains | VIDEO_CONSTRAINS_DEFAULT;
-    VIDEO_SIMULCAST_ENCODINGS = args.video_encodings | VIDEO_SIMULCAST_ENCODINGS_DEFAULT;
+    VIDEO_CONSTRAINS = args.video_constrains || VIDEO_CONSTRAINS_DEFAULT;
+    VIDEO_SIMULCAST_ENCODINGS = args.video_encodings || VIDEO_SIMULCAST_ENCODINGS_DEFAULT;
     this.turnservers = args.turnservers; // Closed flag.
     // @type {Boolean}
 
@@ -1325,7 +1325,7 @@ function () {
               case 0:
                 logger.debug('changeWebcam()');
                 _context9.prev = 1;
-                deviceId = this._mic.device ? this._mic.device.deviceId : undefined; // this._mic.device = this._mic.device.deviceId = deviceId;
+                deviceId = this._mic.device ? this._mic.device.deviceId : 'default'; // this._mic.device = this._mic.device.deviceId = deviceId;
                 // Closing the current video track before asking for a new one (mobiles do not like
                 // having both front/back cameras open at the same time).
 
