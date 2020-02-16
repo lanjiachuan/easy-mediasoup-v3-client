@@ -4086,20 +4086,20 @@ var Init = function Init(config) {
             turnservers = config.turnservers;
             handler = urlParser.query.handler;
             useSimulcast = config.useSimulcast || urlParser.query.simulcast !== 'false';
-            useSharingSimulcast = urlParser.query.sharingSimulcast !== 'false';
-            forceTcp = urlParser.query.forceTcp === 'true';
+            useSharingSimulcast = config.useSharingSimulcast || urlParser.query.sharingSimulcast !== 'false';
+            forceTcp = config.forceTcp || urlParser.query.forceTcp === 'true';
             produce = config.produce == true;
             consume = config.consume == true;
-            forceH264 = urlParser.query.forceH264 === 'true';
-            forceVP9 = urlParser.query.forceVP9 === 'true';
-            svc = urlParser.query.svc;
-            datachannel = urlParser.query.datachannel !== 'false';
-            info = urlParser.query.info === 'true';
-            faceDetection = urlParser.query.faceDetection === 'true';
-            externalVideo = urlParser.query.externalVideo === 'true';
-            throttleSecret = urlParser.query.throttleSecret;
-            camDeviceId = config.cam_device_id;
-            micDeviceId = config.mic_device_id;
+            forceH264 = config.forceH264 || urlParser.query.forceH264 === 'true';
+            forceVP9 = config.forceVP9 || urlParser.query.forceVP9 === 'true';
+            svc = config.svc || urlParser.query.svc;
+            datachannel = config.datachannel || urlParser.query.datachannel !== 'false';
+            info = config.info || urlParser.query.info === 'true';
+            faceDetection = config.faceDetection || urlParser.query.faceDetection === 'true';
+            externalVideo = config.externalVideo || urlParser.query.externalVideo === 'true';
+            throttleSecret = config.throttleSecret || urlParser.query.throttleSecret;
+            camDeviceId = config.cam_device_id || 'default';
+            micDeviceId = config.mic_device_id || 'default';
             args = {
               video_constrains: video_constrains,
               video_encodings: video_encodings,
@@ -4734,6 +4734,7 @@ var me = function me() {
     case 'SET_SHARE_IN_PROGRESS':
       {
         var _flag = action.payload.flag;
+        global.emitter.emit("SET_SHARE_IN_PROGRESS", _flag);
         return _objectSpread({}, state, {
           shareInProgress: _flag
         });
@@ -4744,6 +4745,7 @@ var me = function me() {
         var _displayName = action.payload.displayName; // Be ready for undefined displayName (so keep previous one).
 
         if (!_displayName) _displayName = state.displayName;
+        global.emitter.emit("SET_DISPLAY_NAME", _displayName);
         return _objectSpread({}, state, {
           displayName: _displayName,
           displayNameSet: true
@@ -4957,6 +4959,7 @@ var peers = function peers() {
           dataConsumers: newDataConsumers
         });
 
+        global.emitter.emit("ADD_DATA_CONSUMER", _newPeer3);
         return _objectSpread({}, state, (0, _defineProperty2["default"])({}, _newPeer3.id, _newPeer3));
       }
 
@@ -4983,6 +4986,7 @@ var peers = function peers() {
           dataConsumers: _newDataConsumers
         });
 
+        global.emitter.emit("REMOVE_DATA_CONSUMER", _newPeer4);
         return _objectSpread({}, state, (0, _defineProperty2["default"])({}, _newPeer4.id, _newPeer4));
       }
 
@@ -5097,6 +5101,7 @@ var producers = function producers() {
           score: score
         });
 
+        global.emitter.emit("SET_PRODUCER_SCORE", _newProducer3);
         return _objectSpread({}, state, (0, _defineProperty2["default"])({}, _producerId4, _newProducer3));
       }
 

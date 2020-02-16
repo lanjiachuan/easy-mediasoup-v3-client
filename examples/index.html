@@ -26,10 +26,11 @@
                 autorun: true,
                 roomId:'9b8af784-f505-4ddd-a643-9b3df138cbb2',
                 peerId:user_uuid,
-                media_server_wss:"wss://test.mediasoup.org:4444",
+                // media_server_wss:"wss://test.mediasoup.org:4444",
+                media_server_wss:"ws://localhost:4443",
                 produce: true,
                 consume: true,
-                externalVideo: true,
+                externalVideo: false,
                 // turnservers: [
                 //  {
                 //    url:`turn:exemple.com`,
