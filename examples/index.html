@@ -12,20 +12,22 @@
             <input id="sessionInput"/>
             <button type="submit">Create it!</button>
         </form>
+        <button id="share" onclick="share()">Screen share</button>
         <div id="peers"></div>
-        
+        <div id="share_peers"></div>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
         <script src="../dist/easy-mediasoup.bundle.js"></script>
         <!-- <script src="../es5-bundle/index.js"></script> -->
         <script>
-						// window.localStorage.setItem('debug', '* -engine* -socket* -RIE* *WARN* *ERROR*');
+						window.localStorage.setItem('debug', '* -engine* -socket* -RIE* *WARN* *ERROR*');
             // grab the room from the URL
             var user_uuid = "test"+Math.random()
-            var room = location.search && location.search.split('?')[1];
+            var room = location.search && location.search.split('?')[1] || "1";
             var config = {
                 autorun: true,
-                roomId:'9b8af784-f505-4ddd-a643-9b3df138cbb2',
+                roomId: room,
                 peerId:user_uuid,
+                displayName: "test",
                 // media_server_wss:"wss://test.mediasoup.org:4444",
                 media_server_wss:"ws://localhost:4443",
                 produce: true,
@@ -43,6 +45,7 @@
                     vga: { width: 100 },
                     hd: { width: 320 }
                 },
+                useSharingSimulcast: false,
                 useSimulcast: true,
                 video_encodings: [
                     { maxBitrate: 100000, scaleResolutionDownBy: 4 },
@@ -60,6 +63,7 @@
             })
 
             peers = [];
+
             em.emitter.on('SET_ROOM_STATE', (state) => { //new/connecting/connected/disconnected/closed
               console.log("SET_ROOM_STATE", state)
             })
@@ -131,22 +135,22 @@
                 var state = em.store.getState()
                 //Find necessary peer
                 let peer = state.peers[consumer.peerId]
+                let share = consumer.consumer.appData.share;
+                //Create new peer stream and add
+                if (!peer.stream){
+                  peer.stream = new MediaStream;
+                }
+                let oldTrack = peer.stream.getTracks().find((track) => {
+                  return track.kind == consumer.consumer.track.kind
+                })
+                if (oldTrack) peer.stream.removeTrack(oldTrack)
 
-                  //Create new peer stream and add
-                  if (!peer.stream){
-                    peer.stream = new MediaStream;
-                  }
-                  let oldTrack = peer.stream.getTracks().find((track) => {
-                    return track.kind == consumer.consumer.track.kind
-                  })
-                  if (oldTrack) peer.stream.removeTrack(oldTrack)
-
-                  peer.stream.addTrack(consumer.consumer.track)
-                  //render final stream
-                  if (peer.name != user_uuid){
-                    add_peer(peer.name, peer.stream)
-                  }
-                }, 3000)
+                peer.stream.addTrack(consumer.consumer.track)
+                //render final stream
+                if (peer.peerId != user_uuid){
+                  add_peer(share ? `share_${peer.id}` : peer.id, peer.stream, share)
+                }
+              }, 3000)
             })
 
 
@@ -161,28 +165,37 @@
                 return peers.find(x => x.name == user_uuid)
             }
 
-            function add_peer(user_uuid, stream) {
+            function add_peer(user_uuid, stream, share=false) {
                 const peer = get_peer(user_uuid);
-
+                peer.share = share;
                 peer.stream_url = stream;
                 render_peers()
             }
 
             function render_peers(){
-                $('#peers').empty()
-                peers.forEach((peer) => {
-                    if (peer.stream_url){
-                        remoteVideo = document.createElement("video");
-                        remoteVideo.id = peer.name
-                        remoteVideo.srcObject = peer.stream_url
-                        remoteVideo.play();
-                        // remoteVideo.width = 300;
-                        // remoteVideo.muted = true;
+              $('#peers').empty()
+              $('#share_peers').empty()
+              peers.forEach((peer) => {
+                if (peer.stream_url){
+                  remoteVideo = document.createElement("video");
+                  remoteVideo.id = peer.name
+                  remoteVideo.srcObject = peer.stream_url
+                  remoteVideo.play();
+                  remoteVideo.className=peer.share
+                  // remoteVideo.width = 300;
+                  // remoteVideo.muted = true;
+                  if (peer.share) {
+                    $('#share_peers').append(remoteVideo)
+                  } else {
+                    $('#peers').append(remoteVideo)
+                  }
+                }
+              })
 
-                        $('#peers').append(remoteVideo)
-                    }
-                })
+            }
 
+            function share() {
+              em.client.enableShare()
             }
         </script>
     </body>

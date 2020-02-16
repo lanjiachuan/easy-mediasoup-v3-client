@@ -14,7 +14,7 @@ var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/creat
 
 var _debug = _interopRequireDefault(require("debug"));
 
-var APP_NAME = 'mediasoup-demo';
+var APP_NAME = 'mediasoup';
 
 var Logger =
 /*#__PURE__*/
@@ -462,7 +462,8 @@ function () {
                               preferredTemporalLayer: temporalLayers - 1,
                               priority: 1,
                               codec: consumer.rtpParameters.codecs[0].mimeType.split('/')[1],
-                              track: consumer.track
+                              track: consumer.track,
+                              appData: appData
                             }, peerId)); // We are ready. Answer the protoo request so the server will
                             // resume this Consumer (which was paused for now if video).
 
@@ -1091,56 +1092,47 @@ function () {
                 logger.debug('enableWebcam()');
 
                 if (!this._webcamProducer) {
-                  _context7.next = 5;
+                  _context7.next = 3;
                   break;
                 }
 
                 return _context7.abrupt("return");
 
-              case 5:
-                if (!this._shareProducer) {
-                  _context7.next = 8;
-                  break;
-                }
-
-                _context7.next = 8;
-                return this.disableShare();
-
-              case 8:
+              case 3:
                 if (this._mediasoupDevice.canProduce('video')) {
-                  _context7.next = 11;
+                  _context7.next = 6;
                   break;
                 }
 
                 logger.error('enableWebcam() | cannot produce video');
                 return _context7.abrupt("return");
 
-              case 11:
+              case 6:
                 store.dispatch(stateActions.setWebcamInProgress(true));
-                _context7.prev = 12;
+                _context7.prev = 7;
 
                 if (this._externalVideo) {
-                  _context7.next = 27;
+                  _context7.next = 22;
                   break;
                 }
 
-                _context7.next = 16;
+                _context7.next = 11;
                 return this._updateWebcams();
 
-              case 16:
+              case 11:
                 device = this._webcam.device;
                 resolution = this._webcam.resolution;
 
                 if (device) {
-                  _context7.next = 20;
+                  _context7.next = 15;
                   break;
                 }
 
                 throw new Error('no webcam devices');
 
-              case 20:
+              case 15:
                 logger.debug('enableWebcam() | calling getUserMedia()');
-                _context7.next = 23;
+                _context7.next = 18;
                 return navigator.mediaDevices.getUserMedia({
                   video: _objectSpread({
                     deviceId: {
@@ -1149,26 +1141,26 @@ function () {
                   }, VIDEO_CONSTRAINS[resolution])
                 });
 
-              case 23:
+              case 18:
                 stream = _context7.sent;
                 track = stream.getVideoTracks()[0];
-                _context7.next = 32;
+                _context7.next = 27;
                 break;
 
-              case 27:
+              case 22:
                 device = {
                   label: 'external video'
                 };
-                _context7.next = 30;
+                _context7.next = 25;
                 return this._getExternalVideoStream();
 
-              case 30:
+              case 25:
                 _stream2 = _context7.sent;
                 track = _stream2.getVideoTracks()[0].clone();
 
-              case 32:
+              case 27:
                 if (!this._useSimulcast) {
-                  _context7.next = 40;
+                  _context7.next = 35;
                   break;
                 }
 
@@ -1177,7 +1169,7 @@ function () {
                   return c.kind === 'video';
                 });
                 if (firstVideoCodec.mimeType.toLowerCase() === 'video/vp9') encodings = VIDEO_KSVC_ENCODINGS;else encodings = VIDEO_SIMULCAST_ENCODINGS;
-                _context7.next = 37;
+                _context7.next = 32;
                 return this._sendTransport.produce({
                   track: track,
                   encodings: encodings,
@@ -1186,21 +1178,21 @@ function () {
                   }
                 });
 
-              case 37:
+              case 32:
                 this._webcamProducer = _context7.sent;
-                _context7.next = 43;
+                _context7.next = 38;
                 break;
 
-              case 40:
-                _context7.next = 42;
+              case 35:
+                _context7.next = 37;
                 return this._sendTransport.produce({
                   track: track
                 });
 
-              case 42:
+              case 37:
                 this._webcamProducer = _context7.sent;
 
-              case 43:
+              case 38:
                 store.dispatch(stateActions.addProducer({
                   id: this._webcamProducer.id,
                   deviceLabel: device.label,
@@ -1224,12 +1216,12 @@ function () {
                   _this3.disableWebcam()["catch"](function () {});
                 });
 
-                _context7.next = 53;
+                _context7.next = 48;
                 break;
 
-              case 48:
-                _context7.prev = 48;
-                _context7.t0 = _context7["catch"](12);
+              case 43:
+                _context7.prev = 43;
+                _context7.t0 = _context7["catch"](7);
                 logger.error('enableWebcam() | failed:%o', _context7.t0);
                 store.dispatch(requestActions.notify({
                   type: 'error',
@@ -1237,15 +1229,15 @@ function () {
                 }));
                 if (track) track.stop();
 
-              case 53:
+              case 48:
                 store.dispatch(stateActions.setWebcamInProgress(false));
 
-              case 54:
+              case 49:
               case "end":
                 return _context7.stop();
             }
           }
-        }, _callee7, this, [[12, 48]]);
+        }, _callee7, this, [[7, 43]]);
       }));
 
       function enableWebcam() {
@@ -1566,35 +1558,26 @@ function () {
                 logger.debug('enableShare()');
 
                 if (!this._shareProducer) {
-                  _context12.next = 5;
+                  _context12.next = 3;
                   break;
                 }
 
                 return _context12.abrupt("return");
 
-              case 5:
-                if (!this._webcamProducer) {
-                  _context12.next = 8;
-                  break;
-                }
-
-                _context12.next = 8;
-                return this.disableWebcam();
-
-              case 8:
+              case 3:
                 if (this._mediasoupDevice.canProduce('video')) {
-                  _context12.next = 11;
+                  _context12.next = 6;
                   break;
                 }
 
                 logger.error('enableShare() | cannot produce video');
                 return _context12.abrupt("return");
 
-              case 11:
+              case 6:
                 store.dispatch(stateActions.setShareInProgress(true));
-                _context12.prev = 12;
+                _context12.prev = 7;
                 logger.debug('enableShare() | calling getUserMedia()');
-                _context12.next = 16;
+                _context12.next = 11;
                 return navigator.mediaDevices.getDisplayMedia({
                   audio: false,
                   video: {
@@ -1613,22 +1596,22 @@ function () {
                   }
                 });
 
-              case 16:
+              case 11:
                 stream = _context12.sent;
 
                 if (stream) {
-                  _context12.next = 20;
+                  _context12.next = 15;
                   break;
                 }
 
                 store.dispatch(stateActions.setShareInProgress(true));
                 return _context12.abrupt("return");
 
-              case 20:
+              case 15:
                 track = stream.getVideoTracks()[0];
 
                 if (!this._useSharingSimulcast) {
-                  _context12.next = 29;
+                  _context12.next = 24;
                   break;
                 }
 
@@ -1647,7 +1630,7 @@ function () {
                   });
                 }
 
-                _context12.next = 26;
+                _context12.next = 21;
                 return this._sendTransport.produce({
                   track: track,
                   encodings: encodings,
@@ -1659,21 +1642,24 @@ function () {
                   }
                 });
 
-              case 26:
+              case 21:
                 this._shareProducer = _context12.sent;
-                _context12.next = 32;
+                _context12.next = 27;
                 break;
 
-              case 29:
-                _context12.next = 31;
+              case 24:
+                _context12.next = 26;
                 return this._sendTransport.produce({
-                  track: track
+                  track: track,
+                  appData: {
+                    share: true
+                  }
                 });
 
-              case 31:
+              case 26:
                 this._shareProducer = _context12.sent;
 
-              case 32:
+              case 27:
                 store.dispatch(stateActions.addProducer({
                   id: this._shareProducer.id,
                   type: 'share',
@@ -1696,12 +1682,12 @@ function () {
                   _this4.disableShare()["catch"](function () {});
                 });
 
-                _context12.next = 42;
+                _context12.next = 37;
                 break;
 
-              case 37:
-                _context12.prev = 37;
-                _context12.t0 = _context12["catch"](12);
+              case 32:
+                _context12.prev = 32;
+                _context12.t0 = _context12["catch"](7);
                 logger.error('enableShare() | failed:%o', _context12.t0);
 
                 if (_context12.t0.name !== 'NotAllowedError') {
@@ -1713,15 +1699,15 @@ function () {
 
                 if (track) track.stop();
 
-              case 42:
+              case 37:
                 store.dispatch(stateActions.setShareInProgress(false));
 
-              case 43:
+              case 38:
               case "end":
                 return _context12.stop();
             }
           }
-        }, _callee12, this, [[12, 37]]);
+        }, _callee12, this, [[7, 32]]);
       }));
 
       function enableShare() {
@@ -3924,8 +3910,8 @@ exports.setDevices = setDevices;
 
 var _jsCookie = _interopRequireDefault(require("js-cookie"));
 
-var USER_COOKIE = 'mediasoup-demo.user';
-var DEVICES_COOKIE = 'mediasoup-demo.devices';
+var USER_COOKIE = 'mediasoup.user';
+var DEVICES_COOKIE = 'mediasoup.devices';
 
 function getUser() {
   return _jsCookie["default"].getJSON(USER_COOKIE);
@@ -4034,7 +4020,7 @@ function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (O
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { (0, _defineProperty2["default"])(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
 
-var version = "0.0.1";
+var version = "0.0.2";
 console.warn("Mediasoup-v3 lite client version ".concat(version));
 
 var Init = function Init(config) {
@@ -4075,7 +4061,8 @@ var Init = function Init(config) {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
-            logger.debug('run() [environment:%s]', process.env.NODE_ENV);
+            logger.debug('run() [environment:%s]', process.env.NODE_ENV, config);
+            console.log(config);
             urlParser = new _urlParse["default"](window.location.href, true);
             peerId = config.peerId || Math.round(Math.random() * 1e8).toString();
             roomId = config.roomId;
@@ -4085,8 +4072,8 @@ var Init = function Init(config) {
             video_encodings = config.video_encodings;
             turnservers = config.turnservers;
             handler = urlParser.query.handler;
-            useSimulcast = config.useSimulcast || urlParser.query.simulcast !== 'false';
-            useSharingSimulcast = config.useSharingSimulcast || urlParser.query.sharingSimulcast !== 'false';
+            useSimulcast = config.useSimulcast || urlParser.query.simulcast == 'false';
+            useSharingSimulcast = config.useSharingSimulcast || urlParser.query.sharingSimulcast == 'false';
             forceTcp = config.forceTcp || urlParser.query.forceTcp === 'true';
             produce = config.produce == true;
             consume = config.consume == true;
@@ -4130,29 +4117,29 @@ var Init = function Init(config) {
             roomUrlParser = new _urlParse["default"](window.location.href, true);
             _i = 0, _Object$keys = Object.keys(roomUrlParser.query);
 
-          case 31:
+          case 32:
             if (!(_i < _Object$keys.length)) {
-              _context.next = 41;
+              _context.next = 42;
               break;
             }
 
             key = _Object$keys[_i];
             _context.t0 = key;
-            _context.next = _context.t0 === 'roomId' ? 36 : _context.t0 === 'simulcast' ? 36 : _context.t0 === 'sharingSimulcast' ? 36 : _context.t0 === 'produce' ? 36 : _context.t0 === 'consume' ? 36 : _context.t0 === 'forceH264' ? 36 : _context.t0 === 'forceVP9' ? 36 : _context.t0 === 'forceTcp' ? 36 : _context.t0 === 'svc' ? 36 : _context.t0 === 'datachannel' ? 36 : _context.t0 === 'info' ? 36 : _context.t0 === 'faceDetection' ? 36 : _context.t0 === 'externalVideo' ? 36 : _context.t0 === 'throttleSecret' ? 36 : 37;
+            _context.next = _context.t0 === 'roomId' ? 37 : _context.t0 === 'simulcast' ? 37 : _context.t0 === 'sharingSimulcast' ? 37 : _context.t0 === 'produce' ? 37 : _context.t0 === 'consume' ? 37 : _context.t0 === 'forceH264' ? 37 : _context.t0 === 'forceVP9' ? 37 : _context.t0 === 'forceTcp' ? 37 : _context.t0 === 'svc' ? 37 : _context.t0 === 'datachannel' ? 37 : _context.t0 === 'info' ? 37 : _context.t0 === 'faceDetection' ? 37 : _context.t0 === 'externalVideo' ? 37 : _context.t0 === 'throttleSecret' ? 37 : 38;
             break;
-
-          case 36:
-            return _context.abrupt("break", 38);
 
           case 37:
-            delete roomUrlParser.query[key];
+            return _context.abrupt("break", 39);
 
           case 38:
+            delete roomUrlParser.query[key];
+
+          case 39:
             _i++;
-            _context.next = 31;
+            _context.next = 32;
             break;
 
-          case 41:
+          case 42:
             delete roomUrlParser.hash;
             roomUrl = roomUrlParser.toString();
 
@@ -4199,7 +4186,7 @@ var Init = function Init(config) {
 
             window.CC = roomClient; // eslint-disable-line require-atomic-updates
 
-          case 53:
+          case 54:
           case "end":
             return _context.stop();
         }
@@ -5760,7 +5747,7 @@ var mediaQueryDetectorElem;
 
 function initialize() {
   // Media query detector stuff.
-  mediaQueryDetectorElem = document.getElementById('mediasoup-demo-app-media-query-detector');
+  mediaQueryDetectorElem = document.getElementById('mediasoup-app-media-query-detector');
   return Promise.resolve();
 }
 

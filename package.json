@@ -9,7 +9,7 @@
   "scripts": {
     "lint": "eslint -c .eslintrc.js --ext .js,.jsx gulpfile.js lib",
     "start": "gulp live",
-    "clean": "rm -rf es5-bundle dist/*",
+    "clean": "rm -rf es5-bundle && rm -rf dist/*",
     "babel-build": "NODE_ENV=production babel ./lib -d ./es5-bundle --ignore test.js",
     "bundle_build": "npm run clean && npm run babel-build && NODE_ENV=production node build.js && npm run minify && npm run size",
     "minify": "NODE_ENV=production minify dist/easy-mediasoup.bundle.js -o dist/easy-mediasoup.bundle.min.js",
