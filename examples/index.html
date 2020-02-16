@@ -135,7 +135,7 @@
                 var state = em.store.getState()
                 //Find necessary peer
                 let peer = state.peers[consumer.peerId]
-                let share = consumer.consumer.appData.share;
+                const share = consumer.consumer.appData.share;
                 //Create new peer stream and add
                 if (!peer.stream){
                   peer.stream = new MediaStream;
