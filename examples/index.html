@@ -19,7 +19,7 @@
         <script src="../dist/easy-mediasoup.bundle.js"></script>
         <!-- <script src="../es5-bundle/index.js"></script> -->
         <script>
-						window.localStorage.setItem('debug', '* -engine* -socket* -RIE* *WARN* *ERROR*');
+						// window.localStorage.setItem('debug', '* -engine* -socket* -RIE* *WARN* *ERROR*');
             // grab the room from the URL
             var user_uuid = "test"+Math.random()
             var room = location.search && location.search.split('?')[1] || "1";
@@ -93,25 +93,29 @@
 
             let setProducerTrack = (MSTrack) =>{
               setTimeout(() => {
-                console.log(MSTrack.source, MSTrack.track.getConstraints())
+
+              const share = MSTrack.type === "share";
+              let peer = add_peer(share ? `share_${user_uuid}` : user_uuid)
+
               //Take current redux state to get mediastream
               var state = em.store.getState()
+              peer.share = share;
               // let stream_service_peer = this.get_peer(user_uuid);
               // if (stream_service_peer.is_cam_enabled.value != false && stream_service_peer){
-                if (!state.me.stream) {
-                  state.me.stream = new MediaStream;
+                if (!peer.stream) {
+                  peer.stream = new MediaStream;
                 }
                 //Find old track and remove it out
-                let oldTrack = state.me.stream.getTracks().find((track) => {
+                let oldTrack = peer.stream.getTracks().find((track) => {
                   return track.kind == MSTrack.track.kind
                 })
-                if (oldTrack) state.me.stream.removeTrack(oldTrack)
+                if (oldTrack) peer.stream.removeTrack(oldTrack)
 
-                console.warn("My tracks",state.me.stream.getTracks())
+                console.warn("My tracks",peer.stream.getTracks())
                 //Add new track instead old
-                state.me.stream.addTrack(MSTrack.track);
+                peer.stream.addTrack(MSTrack.track);
                 //render final stream
-                add_peer(user_uuid, state.me.stream)
+                render_peers()
               // }
               }, 3000)
               
@@ -131,11 +135,19 @@
             em.emitter.on("ADD_CONSUMER", (consumer) => {
               setTimeout(() => {
                 console.warn("ADD_CONSUMER", consumer)
+                const share = consumer.consumer.appData.share === true;
+                //Find necessary peer
+                let peer
+                if (consumer.peerId != user_uuid){
+                  peer = add_peer(share ? `share_${consumer.peerId }` : consumer.peerId )
+                } else {
+                  return;
+                }
                 //Take current redux
                 var state = em.store.getState()
-                //Find necessary peer
-                let peer = state.peers[consumer.peerId]
-                const share = consumer.consumer.appData.share;
+                
+                peer.share = share;
+
                 //Create new peer stream and add
                 if (!peer.stream){
                   peer.stream = new MediaStream;
@@ -147,9 +159,7 @@
 
                 peer.stream.addTrack(consumer.consumer.track)
                 //render final stream
-                if (peer.peerId != user_uuid){
-                  add_peer(share ? `share_${peer.id}` : peer.id, peer.stream, share)
-                }
+                render_peers()
               }, 3000)
             })
 
@@ -165,21 +175,19 @@
                 return peers.find(x => x.name == user_uuid)
             }
 
-            function add_peer(user_uuid, stream, share=false) {
-                const peer = get_peer(user_uuid);
-                peer.share = share;
-                peer.stream_url = stream;
-                render_peers()
+            function add_peer(user_uuid) {
+              const peer = get_peer(user_uuid);
+              return peer;
             }
 
             function render_peers(){
               $('#peers').empty()
               $('#share_peers').empty()
               peers.forEach((peer) => {
-                if (peer.stream_url){
+                if (peer.stream){
                   remoteVideo = document.createElement("video");
                   remoteVideo.id = peer.name
-                  remoteVideo.srcObject = peer.stream_url
+                  remoteVideo.srcObject = peer.stream
                   remoteVideo.play();
                   remoteVideo.className=peer.share
                   // remoteVideo.width = 300;

@@ -2119,48 +2119,25 @@ function () {
             switch (_context19.prev = _context19.next) {
               case 0:
                 logger.debug('setMaxSendingSpatialLayer() [spatialLayer:%s]', spatialLayer);
-                _context19.prev = 1;
 
-                if (!this._webcamProducer) {
-                  _context19.next = 7;
-                  break;
+                try {// if (this._webcamProducer)
+                  // 	await this._webcamProducer.setMaxSpatialLayer(spatialLayer);
+                  // else if (this._shareProducer)
+                  // 	await this._shareProducer.setMaxSpatialLayer(spatialLayer);
+                } catch (error) {
+                  logger.error('setMaxSendingSpatialLayer() | failed:%o', error);
+                  store.dispatch(requestActions.notify({
+                    type: 'error',
+                    text: "Error setting max sending video spatial layer: ".concat(error)
+                  }));
                 }
 
-                _context19.next = 5;
-                return this._webcamProducer.setMaxSpatialLayer(spatialLayer);
-
-              case 5:
-                _context19.next = 10;
-                break;
-
-              case 7:
-                if (!this._shareProducer) {
-                  _context19.next = 10;
-                  break;
-                }
-
-                _context19.next = 10;
-                return this._shareProducer.setMaxSpatialLayer(spatialLayer);
-
-              case 10:
-                _context19.next = 16;
-                break;
-
-              case 12:
-                _context19.prev = 12;
-                _context19.t0 = _context19["catch"](1);
-                logger.error('setMaxSendingSpatialLayer() | failed:%o', _context19.t0);
-                store.dispatch(requestActions.notify({
-                  type: 'error',
-                  text: "Error setting max sending video spatial layer: ".concat(_context19.t0)
-                }));
-
-              case 16:
+              case 2:
               case "end":
                 return _context19.stop();
             }
           }
-        }, _callee19, this, [[1, 12]]);
+        }, _callee19);
       }));
 
       function setMaxSendingSpatialLayer(_x4) {
