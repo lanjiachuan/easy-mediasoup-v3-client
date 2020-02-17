@@ -79,6 +79,14 @@
                })
             })
 
+            em.emitter.on('SET_PRODUCER_SCORE', producer => {
+              console.error("SET_PRODUCER_SCORE", producer)
+            })
+
+            em.emitter.on('SET_CONSUMER_SCORE', consumer => {
+              console.error("SET_CONSUMER_SCORE", consumer)
+            })
+
             em.emitter.on('enableWebcam',(test)=>{
               console.error("enableWebcam",test)
             })
